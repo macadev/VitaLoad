@@ -1,33 +1,34 @@
 $(document).ready(function() {
+  
   var options = {
     width: 1000,
     height: 600
   };
 
   var attributes = {
-    labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+    labels: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
     series: [
-      [12, 9, 7, 8, 5],
-      [2, 1, 3.5, 7, 3],
-      [1, 3, 4, 5, 6]
-    ]
+      [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+    ],
   };
 
   var chart = Chartist.Line('.ct-chart', attributes, options);
 
-  setTimeout(function() {
-
-    attributes.series = [
-      [1, 2, 3, 4, 5],
-      [2, 1, 0, 0, 12],
-      [1, 3, 4, 5, 6]
-    ]
-    
+  var i = 10;
+  setInterval(function(){
+    attributes.series[0].shift();
+    attributes.series[0].push(i*Math.random());
     chart.update();
+  }, 400);
 
-  }, 4000);
-
-  setInterval(function(){alert("Hello")}, 3000);
-
+  /*
+  for(var i = 0; i < 200; i++) {
+    setTimeout(function () {
+      console.log('we are here');
+      attributes.series[0][1] = i;
+      chart.update();
+    }, 2000);
+  }
+  */
 
 });

@@ -1,3 +1,5 @@
+// #A09F9
+
 $(function () {
   var init_temperatures_and_dates;
   var new_temperature;
@@ -6,16 +8,21 @@ $(function () {
   var call_id;
 
   function getNewTemperature(series) {
-    console.log('ICI!!!!!!!');
+    //put call ID BACK IN HERE!
+    console.log('we are polling' + call_id);
     $.ajax({url: 'http://198.100.145.140/wh/get-data.php?a=all_temp&last_id=' + call_id, success: function(new_temperatures) {
+      //console.log(new_temperatures);
+      new_temperatures = JSON.parse(new_temperatures);
+      if (!new_temperatures.length) {
+        return;
+      }
       call_id = new_temperatures[new_temperatures.length - 1].id;
 
-      data_set = _.map(new_temperatures, function(new_data) {
-        return { y : parseFloat(new_data.temp), x : new Date(new_data.date_sent) };
-      });
-
-      _.each(data_set, function(data_point) {
-        series.addPoint([data_point.x, data_point.y], true, true);
+      _.each(new_temperatures, function(data_point) {
+        console.log(data_point);
+        //the true booleans specifies that we want to SHIFT the first point
+        //upon adding a new one.
+        series.addPoint({y: parseFloat(data_point.temp), x: new Date(data_point.date_sent)}, true, true);
       }); 
     }});
   }
@@ -40,7 +47,9 @@ $(function () {
               var series = this.series[0];
               
               //poll every 5 seconds for new temperature to be plotted
-              setInterval(getNewTemperature(series), 5000);
+              setInterval(function () { 
+                getNewTemperature(series);
+              }, 1000);
               
               
               // setInterval(function () {
@@ -83,6 +92,7 @@ $(function () {
         enabled: false
       },
       series: [{
+        color: '#F4343A',
         name: 'Random data',
         data: data
       }]
@@ -91,14 +101,14 @@ $(function () {
 
   $(document).ready(function () {
 
-    $.ajax({url: 'http://198.100.145.140/wh/get-data.php?a=all_temp', success: function(result){
+    $.ajax({url: 'http://198.100.145.140/wh/get-data.php?a=all_temp&last_id=210', success: function(result){
+      
       var result = JSON.parse(result);
       call_id = result[result.length - 1].id;
-      console.log(result[result.length - 1]);
+      
       data = _.map(result, function(temp_date) {
-        return { y : parseFloat(temp_date.temp), x : new Date(temp_date.date_sent) };
+          return { y : parseFloat(temp_date.temp), x : new Date(temp_date.date_sent) };
       });
-      console.log(data[0]);
       
       generateTable(data);
     }});
